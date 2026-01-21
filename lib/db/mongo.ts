@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
 import { env } from '@/config/env';
 
-// Global type for mongoose connection to persist across HMR in dev
 declare global {
-
-  var mongoose: {
-    conn: mongoose.Connection | null;
-    promise: Promise<mongoose.Connection> | null;
-  } | undefined;
+  var mongoose:
+    | {
+        conn: mongoose.Connection | null;
+        promise: Promise<mongoose.Connection> | null;
+      }
+    | undefined;
 }
 
-const MONGODB_URI = env.MONGODB_URI!;
+const MONGODB_URI = env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env');
@@ -22,7 +22,7 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function connectDB() {
+export async function connectDB() {
   if (cached?.conn) {
     return cached.conn;
   }
@@ -32,8 +32,8 @@ async function connectDB() {
       bufferCommands: false,
     };
 
-    cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log('✅ MongoDB connected successfully');
+    cached!.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+      console.log('MongoDB connected successfully');
       return mongoose.connection;
     });
   }
@@ -47,5 +47,3 @@ async function connectDB() {
 
   return cached!.conn;
 }
-
-export default connectDB;
